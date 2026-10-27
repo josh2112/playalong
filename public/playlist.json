@@ -1,0 +1,183 @@
+[
+    {
+        "name": "The Eighth Candle",
+        "id": "nhPbIK8XIqQ",
+        "cues": [
+            {
+                "measure": 1,
+                "bpm": 66,
+                "countoff": "TtT",
+                "seek": 2.4
+            },
+            {
+                "measure": 13,
+                "bpm": 66,
+                "countoff": "TtTt",
+                "seek": 49.1
+            },
+            {
+                "measure": 27,
+                "bpm": 66,
+                "countoff": "TtTt",
+                "seek": 97.5
+            },
+            {
+                "measure": 35,
+                "bpm": 66,
+                "countoff": "TtTt",
+                "seek": 128.1
+            },
+            {
+                "measure": 51,
+                "bpm": 66,
+                "countoff": "TtT",
+                "seek": 187.6
+            },
+            {
+                "measure": 64,
+                "bpm": 66,
+                "countoff": "TtTt",
+                "seek": 238.7
+            },
+            {
+                "measure": 73,
+                "bpm": 264,
+                "countoff": "TttTtTttTt",
+                "seek": 272.5
+            },
+            {
+                "measure": 89,
+                "bpm": 264,
+                "countoff": "TttTtTttTt",
+                "seek": 290.19
+            },
+            {
+                "measure": 108,
+                "bpm": 264,
+                "countoff": "TttTtTttTt",
+                "seek": 312.83
+            },
+            {
+                "measure": 125,
+                "bpm": 132,
+                "countoff": "TttTt",
+                "seek": 333.2
+            },
+            {
+                "measure": 133,
+                "bpm": 132,
+                "countoff": "TttTt",
+                "seek": 351.3
+            },
+            {
+                "measure": 147,
+                "bpm": 132,
+                "countoff": "TtTt",
+                "seek": 257.4
+            },
+            {
+                "measure": 166,
+                "bpm": 132,
+                "countoff": "TtTt",
+                "seek": 257.4
+            },
+            {
+                "measure": 180,
+                "bpm": 132,
+                "countoff": "TtTt",
+                "seek": 257.4
+            },
+            {
+                "measure": 199,
+                "bpm": 132,
+                "countoff": "TtTt",
+                "seek": 257.4
+            },
+            {
+                "measure": 221,
+                "bpm": 132,
+                "countoff": "TtTt",
+                "seek": 257.4
+            }
+        ]
+    },
+    {
+        "name": "Christmas Pop Sing-A-Long",
+        "id": "owvZjneiXCg",
+        "cues": []
+    },
+    {
+        "name": "A Most Wonderful Christmas",
+        "id": "NcS_RQge9g0",
+        "cues": []
+    },
+    {
+        "name": "Sleigh Ride",
+        "id": "xTMc-WAjL-I",
+        "cues": []
+    },
+    {
+        "name": "Silent Night",
+        "id": "MKVlNqJ4Gio",
+        "cues": []
+    },
+    {
+        "name": "Fum, Fum, Fum",
+        "id": "GZTUju59EME",
+        "cues": [
+            {
+                "measure": 1,
+                "bpm": 84,
+                "countoff": "TtTt",
+                "seek": 3.3
+            },
+            {
+                "measure": 5,
+                "bpm": 84,
+                "countoff": "TtTt",
+                "seek": 19.1
+            },
+            {
+                "measure": 17,
+                "bpm": 84,
+                "countoff": "TtTt",
+                "seek": 45.85
+            },
+            {
+                "measure": 24,
+                "bpm": 84,
+                "countoff": "TtTt",
+                "seek": 65.35
+            },
+            {
+                "measure": 41,
+                "bpm": 84,
+                "countoff": "TtTt",
+                "seek": 113.9
+            },
+            {
+                "measure": 56,
+                "bpm": 84,
+                "countoff": "TtTt",
+                "seek": 155.85
+            },
+            {
+                "measure": 86,
+                "bpm": 84,
+                "countoff": "TtTt",
+                "seek": 240.2
+            },
+            {
+                "measure": 92,
+                "bpm": 84,
+                "countoff": "TtTt",
+                "seek": 257.4
+            }
+        ]
+    },
+    {
+        "name": "On This Day Earth Shall Ring",
+        "id": "PIXBv3yqyyM",
+        "cues": []
+    }
+]
