@@ -7,7 +7,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import { ref, watch, watchEffect } from "vue";
 import "./style.css";
-import { playCountoff } from "./useCountoff.ts";
+import { playCountoff } from "./useCountOff.ts";
 import { useYouTubePlayer } from "./useYouTubePlayer.ts";
 
 interface Cue {
