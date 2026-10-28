@@ -117,13 +117,13 @@ function deltaCue(delta: number) {
 </script>
 
 <template>
-    <div class="antialiased text container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col h-screen overflow-hidden">
-            <div class="w-full max-w-3xl mx-auto py-4">
+    <div class="antialiased container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col h-dvh overflow-hidden">
+            <div class="w-full max-w-3xl mx-auto shrink-0 py-4">
                 <div id="yt-player" class="w-full max-w-100 h-30 mx-auto rounded-xl shadow-lg" />
             </div>
 
-            <div v-if="currentVideo" class="bg-neutral-200 rounded-lg p-4">
+            <div v-if="currentVideo" class="shrink-0 bg-neutral-200 rounded-lg p-4">
                 <div class="font-semibold mb-3">{{ currentVideo.name }}</div>
                 <div v-if="currentCue" class="mb-3 py-3 flex flex-col gap-4 border-y border-neutral-400">
                     <div class="flex gap-4 items-center justify-center">
@@ -164,7 +164,7 @@ function deltaCue(delta: number) {
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto mt-2">
+            <div class="flex-1 min-h-0 overflow-y-auto mt-2">
                 <div
                     v-for="video in videos"
                     class="my-2 flex gap-2 items-center rounded-lg px-2 py-1"
@@ -175,7 +175,7 @@ function deltaCue(delta: number) {
                 </div>
             </div>
 
-            <footer class="w-full max-w-md mx-auto p-2 pb-4 border-t">
+            <footer class="w-full max-w-md mx-auto shrink-0 p-2 pb-4 border-t pb-[env(safe-area-inset-bottom)]">
                 <div v-if="DEBUG">Timestamp: {{ timestamp.toFixed(1) }} s</div>
                 <label for="range-slider" class="block text-sm font-medium">Video sync: {{ latencyMs }} ms</label>
                 <input
