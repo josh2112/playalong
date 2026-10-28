@@ -5,7 +5,8 @@ import {
     PauseIcon,
     PlayIcon,
 } from "@heroicons/vue/24/outline";
-import { ref, watch } from "vue";
+import { useWakeLock } from "@vueuse/core";
+import { onMounted, ref, watch } from "vue";
 import "./style.css";
 import { playCountoff } from "./useCountoff.ts";
 import { useYouTubePlayer } from "./useYouTubePlayer.ts";
@@ -31,6 +32,8 @@ interface Tic {
     isAccent: boolean;
 }
 
+const { request: requestWakeLock } = useWakeLock();
+
 const player = useYouTubePlayer("yt-player");
 
 const videos = ref<Video[]>();
@@ -48,6 +51,8 @@ const isPlaying = ref(false);
 // The browser will not play audio until the user has interacted with the page.
 const canPlayAudio = ref(false);
 window.addEventListener("pointerdown", () => (canPlayAudio.value = true), { once: true });
+
+onMounted(() => requestWakeLock("screen"));
 
 watch(player.ready, async (isReady) => {
     if (isReady) {
@@ -158,7 +163,7 @@ function togglePlayPause() {
 </script>
 
 <template>
-    <div class="antialiased container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="antialiased container mx-auto px-4 sm:px-6 lg:px-8 touch-manipulation">
         <div class="flex flex-col h-dvh overflow-hidden">
             <div class="w-full max-w-3xl mx-auto shrink-0 py-4">
                 <div id="yt-player" class="w-full max-w-100 h-30 mx-auto rounded-xl shadow-lg" />
@@ -170,22 +175,30 @@ function togglePlayPause() {
                     v-if="currentCue"
                     class="mb-3 py-3 flex flex-col gap-4 border-y border-neutral-400"
                 >
-                    <div class="flex gap-4 flex-wrap items-center justify-center">
-                        <button
-                            class="rounded-full bg-neutral-300 px-4 py-2 hover:bg-neutral-400 active:bg-neutral-400 transition-all"
-                            @click="playCue(currentCue)"
-                        >
-                            <ArrowUturnLeftIcon class="size-8" />
-                        </button>
+                    <div class="flex gap-3 flex-wrap items-center justify-center">
                         <div class="mt-1 border-2 px-4 py-1 text-lg font-semibold">
                             {{ currentCue.measure }}
                         </div>
                         <button
-                            class="rounded-full bg-neutral-300 px-4 py-2 hover:bg-neutral-400 active:bg-neutral-400 transition-all"
+                            class="rounded-lg bg-neutral-300 px-4 py-2 hover:bg-neutral-400 active:bg-neutral-400 transition-all"
+                            @click="playCue(currentCue)"
+                        >
+                            <div class="flex flex-col items-center">
+                                <ArrowUturnLeftIcon class="size-8" />
+                                <div class="text-sm font-semibold">Start with count-off</div>
+                            </div>
+                        </button>
+                        <button
+                            class="rounded-lg bg-neutral-300 px-4 py-2 hover:bg-neutral-400 active:bg-neutral-400 transition-all"
                             @click="togglePlayPause()"
                         >
-                            <PlayIcon v-if="!isPlaying" class="size-8" />
-                            <PauseIcon v-else class="size-8" />
+                            <div class="flex flex-col items-center">
+                                <PlayIcon v-if="!isPlaying" class="size-8" />
+                                <PauseIcon v-else class="size-8" />
+                                <div class="text-sm font-semibold">
+                                    {{ isPlaying ? "Pause" : "Play" }}
+                                </div>
+                            </div>
                         </button>
 
                         <div
