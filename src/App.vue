@@ -21,6 +21,11 @@ interface Video {
     cues: Cue[];
 }
 
+interface Tic {
+    beat: number;
+    isAccent: boolean;
+}
+
 const player = useYouTubePlayer("yt-player");
 
 const videos = ref<Video[]>();
@@ -28,7 +33,10 @@ const videos = ref<Video[]>();
 const currentVideo = ref<Video>();
 const currentCue = ref<Cue>();
 
-const latencyMs = ref(100);
+const tics = ref<Tic[]>();
+const ticIndex = ref(-1);
+
+const downbeatLeadMs = ref(100);
 
 const isPlaying = ref(false);
 
@@ -36,6 +44,8 @@ watchEffect(async () => {
     if (player.ready.value) {
         videos.value = await (await fetch("playlist.json")).json();
         player.addListener((e) => (isPlaying.value = e.data == 1));
+
+        downbeatLeadMs.value = Number(localStorage.getItem("playalong.downbeatLeadMs"));
 
         const videoId = localStorage.getItem("playalong.videoId");
         const cueMeasure = localStorage.getItem("playalong.cueMeasure");
@@ -55,9 +65,12 @@ watchEffect(async () => {
     }
 });
 
+watch(downbeatLeadMs, (ms) => localStorage.setItem("playalong.downbeatLeadMs", ms.toString()));
+
 watch(currentVideo, async (video) => {
     if (video) {
         localStorage.setItem("playalong.videoId", video.id);
+        currentCue.value = currentVideo.value?.cues[0];
 
         player.mute();
 
@@ -66,14 +79,23 @@ watch(currentVideo, async (video) => {
         await loaded;
 
         player.pause();
-
-        currentCue.value = currentVideo.value?.cues[0];
     }
 });
 
 watch(currentCue, (cue) => {
     if (cue) {
         localStorage.setItem("playalong.cueMeasure", cue.measure.toString());
+
+        let newTics: Tic[] = [];
+        let beat = 1;
+        for (const t of cue.countoff) {
+            const isAccent = t != "_" && t.toUpperCase() == t;
+            if (isAccent) beat = 1;
+            else beat += 1;
+            newTics.push({ beat, isAccent });
+        }
+        tics.value = newTics;
+
         playCue(cue);
     }
 });
@@ -98,22 +120,23 @@ function playCue(cue: Cue) {
     player.unmute();
     player.seek(cue.seek);
 
-    playCountoff(cue.countoff, cue.bpm, () => player.play(), latencyMs.value);
+    ticIndex.value = -1;
+
+    playCountoff(
+        cue.countoff,
+        cue.bpm,
+        () => (ticIndex.value += 1),
+        () => {
+            ticIndex.value += 1;
+            player.play();
+        },
+        downbeatLeadMs.value,
+    );
 }
 
 function togglePlayPause() {
     if (isPlaying.value) player.pause();
     else player.play();
-}
-
-function deltaCue(delta: number) {
-    let i = currentVideo.value?.cues.findIndex((c) => c.measure == currentCue.value?.measure) ?? -1;
-    if (i >= 0) {
-        i += delta;
-        if (i >= 0 && i < currentVideo.value!.cues.length) {
-            currentCue.value = currentVideo.value?.cues.at(i);
-        }
-    }
 }
 </script>
 
@@ -127,7 +150,7 @@ function deltaCue(delta: number) {
             <div v-if="currentVideo" class="shrink-0 bg-neutral-200 rounded-lg p-4">
                 <div class="font-semibold mb-3">{{ currentVideo.name }}</div>
                 <div v-if="currentCue" class="mb-3 py-3 flex flex-col gap-4 border-y border-neutral-400">
-                    <div class="flex gap-4 items-center justify-center">
+                    <div class="flex gap-4 flex-wrap items-center justify-center">
                         <button
                             class="rounded-full bg-neutral-300 px-4 py-2 hover:bg-neutral-400 active:bg-neutral-400 transition-all"
                             @click="playCue(currentCue)"
@@ -144,14 +167,21 @@ function deltaCue(delta: number) {
                             <PlayIcon v-if="!isPlaying" class="size-8" />
                             <PauseIcon v-else class="size-8" />
                         </button>
-                    </div>
 
-                    <!--<div class="flex gap-4 items-center justify-center text-xl">
-                        <div>1</div>
-                        <div>2</div>
-                        <div>3</div>
-                        <div>4</div>
-                    </div>-->
+                        <div class="flex items-baseline justify-center text-lg font-semibold text-neutral-700">
+                            <div
+                                v-for="(tic, i) in tics"
+                                :key="i"
+                                :class="{
+                                    'text-2xl': tic.isAccent,
+                                    'bg-emerald-400': i == ticIndex,
+                                }"
+                                class="px-3 py-2 rounded-full"
+                            >
+                                {{ tic.beat }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex flex-wrap gap-2 mt-2">
                     <button
@@ -178,18 +208,22 @@ function deltaCue(delta: number) {
 
             <footer class="w-full max-w-md mx-auto shrink-0 p-2 border-t pb-[env(safe-area-inset-bottom)]">
                 <div v-if="DEBUG">Timestamp: {{ timestamp.toFixed(1) }} s</div>
-                <label for="range-slider" class="block text-sm font-medium">Video sync: {{ latencyMs }} ms</label>
-                <input
-                    type="range"
-                    id="range-slider"
-                    min="0"
-                    max="500"
-                    step="10"
-                    v-model="latencyMs"
-                    class="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-120"
-                />
-                <div class="text-sm italic">Adjust this if the video doesn't start right on the downbeat.</div>
-                <div class="text-sm italic text-right border-t border-neutral-300 mt-1 pt-1">
+                <label for="range-slider" class="block text-sm font-medium"
+                    >Video sync: {{ downbeatLeadMs }} ms
+                    <span class="text-sm italic font-normal ms-1"
+                        >Adjust this if the video doesn't start right on the downbeat.</span
+                    >
+                    <input
+                        type="range"
+                        id="range-slider"
+                        min="0"
+                        max="500"
+                        step="10"
+                        v-model="downbeatLeadMs"
+                        class="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-120"
+                /></label>
+
+                <div class="text-sm italic text-right border-t border-neutral-300 mt-1 py-1">
                     @ Josh2112 Apps. Built {{ BUILD_TIMESTAMP }}
                 </div>
             </footer>

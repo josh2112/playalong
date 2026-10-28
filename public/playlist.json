@@ -6,37 +6,37 @@
             {
                 "measure": 1,
                 "bpm": 66,
-                "countoff": "TtT",
+                "countoff": "Ttt_",
                 "seek": 2.4
             },
             {
                 "measure": 13,
                 "bpm": 66,
-                "countoff": "TtTt",
+                "countoff": "Tttt",
                 "seek": 49.1
             },
             {
                 "measure": 27,
                 "bpm": 66,
-                "countoff": "TtTt",
+                "countoff": "Tttt",
                 "seek": 97.5
             },
             {
                 "measure": 35,
                 "bpm": 66,
-                "countoff": "TtTt",
+                "countoff": "Tttt",
                 "seek": 128.1
             },
             {
                 "measure": 51,
                 "bpm": 66,
-                "countoff": "TtT",
+                "countoff": "Ttt_",
                 "seek": 187.6
             },
             {
                 "measure": 64,
                 "bpm": 66,
-                "countoff": "TtTt",
+                "countoff": "Tttt",
                 "seek": 238.7
             },
             {
