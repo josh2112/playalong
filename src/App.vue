@@ -175,7 +175,7 @@ function deltaCue(delta: number) {
                 </div>
             </div>
 
-            <footer class="w-full max-w-md mx-auto shrink-0 p-2 pb-4 border-t pb-[env(safe-area-inset-bottom)]">
+            <footer class="w-full max-w-md mx-auto shrink-0 p-2 border-t pb-[env(safe-area-inset-bottom)]">
                 <div v-if="DEBUG">Timestamp: {{ timestamp.toFixed(1) }} s</div>
                 <label for="range-slider" class="block text-sm font-medium">Video sync: {{ latencyMs }} ms</label>
                 <input
