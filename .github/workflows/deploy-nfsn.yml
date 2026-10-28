@@ -41,6 +41,6 @@ jobs:
 
             - name: Deploy
               run: |
-                  rsync -avzR --delete \
+                  rsync -avz --delete \
                   dist/ \
                   ${{ vars.HOST }}:$DEST_PATH
