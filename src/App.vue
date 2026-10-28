@@ -6,6 +6,7 @@ import { playCountoff } from "./useCountoff.ts";
 import { useYouTubePlayer } from "./useYouTubePlayer.ts";
 
 const DEBUG = false;
+const BUILD_TIMESTAMP = new Date(__BUILD_TIME__).toLocaleString();
 
 interface Cue {
     measure: number;
@@ -188,6 +189,9 @@ function deltaCue(delta: number) {
                     class="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-120"
                 />
                 <div class="text-sm italic">Adjust this if the video doesn't start right on the downbeat.</div>
+                <div class="text-sm italic text-right border-t border-neutral-300 mt-1 pt-1">
+                    @ Josh2112 Apps. Built {{ BUILD_TIMESTAMP }}
+                </div>
             </footer>
         </div>
     </div>
