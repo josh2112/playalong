@@ -71,55 +71,437 @@
             },
             {
                 "measure": 147,
-                "bpm": 132,
-                "countoff": "TtTt",
-                "seek": 257.4
+                "bpm": 264,
+                "countoff": "TttTtTttTt",
+                "seek": 377.5
             },
             {
                 "measure": 166,
                 "bpm": 132,
-                "countoff": "TtTt",
-                "seek": 257.4
+                "countoff": "Ttt",
+                "seek": 400.3
             },
             {
                 "measure": 180,
                 "bpm": 132,
                 "countoff": "TtTt",
-                "seek": 257.4
+                "seek": 417.75
             },
             {
                 "measure": 199,
-                "bpm": 132,
-                "countoff": "TtTt",
-                "seek": 257.4
+                "bpm": 264,
+                "countoff": "TttTtTttTt",
+                "seek": 447.75
             },
             {
                 "measure": 221,
-                "bpm": 132,
-                "countoff": "TtTt",
-                "seek": 257.4
+                "bpm": 264,
+                "countoff": "TttTtTttTt",
+                "seek": 476.55
             }
         ]
     },
     {
         "name": "Christmas Pop Sing-A-Long",
         "id": "owvZjneiXCg",
-        "cues": []
+        "cues": [
+            {
+                "measure": 1,
+                "bpm": 194,
+                "countoff": "TtttTttt",
+                "seek": 4.2
+            },
+            {
+                "measure": 11,
+                "bpm": 194,
+                "countoff": "TtttTttt",
+                "seek": 16.5
+            },
+            {
+                "measure": 27,
+                "bpm": 194,
+                "countoff": "TtttTttt",
+                "seek": 36.71
+            },
+            {
+                "measure": 35,
+                "bpm": 194,
+                "countoff": "TtttTttt",
+                "seek": 46.53
+            },
+            {
+                "measure": 43,
+                "bpm": 90,
+                "countoff": "Ttt",
+                "seek": 57.8
+            },
+            {
+                "measure": 47,
+                "bpm": 90,
+                "countoff": "Ttt",
+                "seek": 66.28
+            },
+            {
+                "measure": 63,
+                "bpm": 90,
+                "countoff": "Ttt",
+                "seek": 101.23
+            },
+            {
+                "measure": 79,
+                "bpm": 180,
+                "countoff": "TtttTttt",
+                "seek": 141
+            },
+            {
+                "measure": 83,
+                "bpm": 180,
+                "countoff": "TtttTttt",
+                "seek": 146.25
+            },
+            {
+                "measure": 99,
+                "bpm": 180,
+                "countoff": "TtttTttt",
+                "seek": 167.65
+            },
+            {
+                "measure": 107,
+                "bpm": 180,
+                "countoff": "TtttTttt",
+                "seek": 178.6
+            },
+            {
+                "measure": 115,
+                "bpm": 75,
+                "countoff": "Tttt",
+                "seek": 191
+            },
+            {
+                "measure": 119,
+                "bpm": 75,
+                "countoff": "Tttt",
+                "seek": 203.7
+            },
+            {
+                "measure": 135,
+                "bpm": 75,
+                "countoff": "Tttt",
+                "seek": 256
+            }
+        ]
     },
     {
         "name": "A Most Wonderful Christmas",
         "id": "NcS_RQge9g0",
-        "cues": []
+        "cues": [
+            {
+                "measure": 1,
+                "bpm": 133,
+                "countoff": "Tttt",
+                "seek": 3.9
+            },
+            {
+                "measure": 11,
+                "bpm": 133,
+                "countoff": "Tttt",
+                "seek": 23.3
+            },
+            {
+                "measure": 19,
+                "bpm": 133,
+                "countoff": "Tttt",
+                "seek": 37.35
+            },
+            {
+                "measure": 27,
+                "bpm": 133,
+                "countoff": "Tttt",
+                "seek": 51.73
+            },
+            {
+                "measure": 36,
+                "bpm": 133,
+                "countoff": "Tttt",
+                "seek": 68.25
+            },
+            {
+                "measure": 46,
+                "bpm": 80,
+                "countoff": "Tttt",
+                "seek": 93.5
+            },
+            {
+                "measure": 54,
+                "bpm": 80,
+                "countoff": "Tttt",
+                "seek": 118.3
+            },
+            {
+                "measure": 62,
+                "bpm": 100,
+                "countoff": "Tttt",
+                "seek": 144.5
+            },
+            {
+                "measure": 70,
+                "bpm": 105,
+                "countoff": "Tttt",
+                "seek": 163.6
+            },
+            {
+                "measure": 84,
+                "bpm": 150,
+                "countoff": "Tttt",
+                "seek": 200.1
+            },
+            {
+                "measure": 92,
+                "bpm": 150,
+                "countoff": "Tttt",
+                "seek": 213.4
+            },
+            {
+                "measure": 100,
+                "bpm": 140,
+                "countoff": "Tttt",
+                "seek": 227
+            },
+            {
+                "measure": 108,
+                "bpm": 133,
+                "countoff": "Tttt",
+                "seek": 240.7
+            },
+            {
+                "measure": 122,
+                "bpm": 70,
+                "countoff": "Tttt",
+                "seek": 273.22
+            },
+            {
+                "measure": 130,
+                "bpm": 70,
+                "countoff": "Tttt",
+                "seek": 301.5
+            },
+            {
+                "measure": 138,
+                "bpm": 74,
+                "countoff": "Tttt",
+                "seek": 329.1
+            },
+            {
+                "measure": 147,
+                "bpm": 80,
+                "countoff": "Tttt",
+                "seek": 362.85
+            },
+            {
+                "measure": 155,
+                "bpm": 80,
+                "countoff": "Tttt",
+                "seek": 387.65
+            },
+            {
+                "measure": 160,
+                "bpm": 220,
+                "countoff": "TttTtt",
+                "seek": 411.2
+            },
+            {
+                "measure": 168,
+                "bpm": 220,
+                "countoff": "TttTtt",
+                "seek": 417.85
+            },
+            {
+                "measure": 176,
+                "bpm": 220,
+                "countoff": "TttTtt",
+                "seek": 424.63
+            },
+            {
+                "measure": 184,
+                "bpm": 220,
+                "countoff": "TttTtt",
+                "seek": 431.5
+            },
+            {
+                "measure": 192,
+                "bpm": 220,
+                "countoff": "TttTtt",
+                "seek": 438.35
+            },
+            {
+                "measure": 200,
+                "bpm": 220,
+                "countoff": "TttTtt",
+                "seek": 445.25
+            },
+            {
+                "measure": 214,
+                "bpm": 280,
+                "countoff": "TtTtTtTt",
+                "seek": 457.67
+            },
+            {
+                "measure": 222,
+                "bpm": 280,
+                "countoff": "TtTtTtTt",
+                "seek": 464.6
+            },
+            {
+                "measure": 230,
+                "bpm": 280,
+                "countoff": "TtTtTtTt",
+                "seek": 471.5
+            },
+            {
+                "measure": 238,
+                "bpm": 280,
+                "countoff": "TtTtTtTt",
+                "seek": 478.25
+            },
+            {
+                "measure": 244,
+                "bpm": 140,
+                "countoff": "Tttt",
+                "seek": 483.42
+            }
+        ]
     },
     {
         "name": "Sleigh Ride",
         "id": "xTMc-WAjL-I",
-        "cues": []
+        "cues": [
+            {
+                "measure": 1,
+                "bpm": 240,
+                "countoff": "TtttTttt",
+                "seek": 2.28
+            },
+            {
+                "measure": 13,
+                "bpm": 240,
+                "countoff": "TtttTttt",
+                "seek": 14.42
+            },
+            {
+                "measure": 29,
+                "bpm": 240,
+                "countoff": "TtttTttt",
+                "seek": 30.51
+            },
+            {
+                "measure": 45,
+                "bpm": 240,
+                "countoff": "TtttTttt",
+                "seek": 46.5
+            },
+            {
+                "measure": 63,
+                "bpm": 240,
+                "countoff": "TtttTttt",
+                "seek": 64.5
+            },
+            {
+                "measure": 91,
+                "bpm": 240,
+                "countoff": "TtttTttt",
+                "seek": 92.6
+            },
+            {
+                "measure": 103,
+                "bpm": 240,
+                "countoff": "TtttTttt",
+                "seek": 104.5
+            },
+            {
+                "measure": 119,
+                "bpm": 240,
+                "countoff": "TtttTttt",
+                "seek": 120.65
+            },
+            {
+                "measure": 135,
+                "bpm": 240,
+                "countoff": "TtttTttt",
+                "seek": 136.6
+            },
+            {
+                "measure": 153,
+                "bpm": 240,
+                "countoff": "TtttTttt",
+                "seek": 154.5
+            }
+        ]
     },
     {
         "name": "Silent Night",
         "id": "MKVlNqJ4Gio",
-        "cues": []
+        "cues": [
+            {
+                "measure": 1,
+                "bpm": 72,
+                "countoff": "Ttt",
+                "seek": 7.3
+            },
+            {
+                "measure": 8,
+                "bpm": 72,
+                "countoff": "Ttt",
+                "seek": 25.5
+            },
+            {
+                "measure": 16,
+                "bpm": 72,
+                "countoff": "Ttt",
+                "seek": 47
+            },
+            {
+                "measure": 24,
+                "bpm": 72,
+                "countoff": "Ttt",
+                "seek": 69
+            },
+            {
+                "measure": 32,
+                "bpm": 72,
+                "countoff": "Ttt",
+                "seek": 91.95
+            },
+            {
+                "measure": 40,
+                "bpm": 72,
+                "countoff": "Ttt",
+                "seek": 112.2
+            },
+            {
+                "measure": 48,
+                "bpm": 72,
+                "countoff": "Ttt",
+                "seek": 133
+            },
+            {
+                "measure": 56,
+                "bpm": 72,
+                "countoff": "Ttt",
+                "seek": 157.83
+            },
+            {
+                "measure": 64,
+                "bpm": 72,
+                "countoff": "Ttt",
+                "seek": 179.8
+            },
+            {
+                "measure": 76,
+                "bpm": 70,
+                "countoff": "Ttt",
+                "seek": 216.3
+            }
+        ]
     },
     {
         "name": "Fum, Fum, Fum",
@@ -178,6 +560,49 @@
     {
         "name": "On This Day Earth Shall Ring",
         "id": "PIXBv3yqyyM",
-        "cues": []
+        "cues": [
+            {
+                "measure": 1,
+                "bpm": 90,
+                "countoff": "Tttt",
+                "seek": 3.2
+            },
+            {
+                "measure": 9,
+                "bpm": 90,
+                "countoff": "Tttt",
+                "seek": 27.55
+            },
+            {
+                "measure": 15,
+                "bpm": 90,
+                "countoff": "Tttt",
+                "seek": 45.45
+            },
+            {
+                "measure": 24,
+                "bpm": 82,
+                "countoff": "Tttt",
+                "seek": 72.1
+            },
+            {
+                "measure": 32,
+                "bpm": 82,
+                "countoff": "Tttt",
+                "seek": 95.5
+            },
+            {
+                "measure": 36,
+                "bpm": 82,
+                "countoff": "Tttt",
+                "seek": 107.1
+            },
+            {
+                "measure": 42,
+                "bpm": 82,
+                "countoff": "Tttt",
+                "seek": 124.8
+            }
+        ]
     }
 ]

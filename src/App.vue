@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import {
-    ArrowUturnLeftIcon,
-    MusicalNoteIcon,
-    PauseIcon,
-    PlayIcon,
-} from "@heroicons/vue/24/outline";
+import { ArrowUturnLeftIcon, MusicalNoteIcon, PauseIcon, PlayIcon } from "@heroicons/vue/24/outline";
 import { ref, watch, watchEffect } from "vue";
 import "./style.css";
-import { playCountoff } from "./useCountOff.ts";
+import { playCountoff } from "./useCountoff.ts";
 import { useYouTubePlayer } from "./useYouTubePlayer.ts";
+
+const DEBUG = false;
 
 interface Cue {
     measure: number;
@@ -48,9 +45,7 @@ watchEffect(async () => {
                 watch(
                     currentCue,
                     () => {
-                        currentCue.value = currentVideo.value!.cues.find(
-                            (c) => c.measure == Number(cueMeasure),
-                        );
+                        currentCue.value = currentVideo.value!.cues.find((c) => c.measure == Number(cueMeasure));
                     },
                     { once: true },
                 );
@@ -109,6 +104,16 @@ function togglePlayPause() {
     if (isPlaying.value) player.pause();
     else player.play();
 }
+
+function deltaCue(delta: number) {
+    let i = currentVideo.value?.cues.findIndex((c) => c.measure == currentCue.value?.measure) ?? -1;
+    if (i >= 0) {
+        i += delta;
+        if (i >= 0 && i < currentVideo.value!.cues.length) {
+            currentCue.value = currentVideo.value?.cues.at(i);
+        }
+    }
+}
 </script>
 
 <template>
@@ -118,33 +123,40 @@ function togglePlayPause() {
                 <div id="yt-player" class="w-full max-w-100 h-30 mx-auto rounded-xl shadow-lg" />
             </div>
 
-            <div v-if="currentVideo" class="bg-neutral-200 rounded-lg shadow-lg px-4 py-2">
+            <div v-if="currentVideo" class="bg-neutral-200 rounded-lg p-4">
                 <div class="font-semibold mb-3">{{ currentVideo.name }}</div>
-                <div
-                    v-if="currentCue"
-                    class="mb-3 p-3 flex gap-4 items-center border-y border-neutral-400"
-                >
-                    <div class="my-2 border-2 px-4 py-1 text-lg font-semibold">
-                        {{ currentCue.measure }}
+                <div v-if="currentCue" class="mb-3 py-3 flex flex-col gap-4 border-y border-neutral-400">
+                    <div class="flex gap-4 items-center justify-center">
+                        <button
+                            class="rounded-full bg-neutral-300 px-4 py-2 hover:bg-neutral-400 active:bg-neutral-400 transition-all"
+                            @click="playCue(currentCue)"
+                        >
+                            <ArrowUturnLeftIcon class="size-8" />
+                        </button>
+                        <div class="mt-1 border-2 px-4 py-1 text-lg font-semibold">
+                            {{ currentCue.measure }}
+                        </div>
+                        <button
+                            class="rounded-full bg-neutral-300 px-4 py-2 hover:bg-neutral-400 active:bg-neutral-400 transition-all"
+                            @click="togglePlayPause()"
+                        >
+                            <PlayIcon v-if="!isPlaying" class="size-8" />
+                            <PauseIcon v-else class="size-8" />
+                        </button>
                     </div>
-                    <button
-                        class="rounded-full bg-neutral-300 px-4 py-2"
-                        @click="togglePlayPause()"
-                    >
-                        <PlayIcon v-if="!isPlaying" class="size-8" />
-                        <PauseIcon v-else class="size-8" />
-                    </button>
-                    <button
-                        class="rounded-full bg-neutral-300 px-4 py-2"
-                        @click="playCue(currentCue)"
-                    >
-                        <ArrowUturnLeftIcon class="size-8" />
-                    </button>
+
+                    <!--<div class="flex gap-4 items-center justify-center text-xl">
+                        <div>1</div>
+                        <div>2</div>
+                        <div>3</div>
+                        <div>4</div>
+                    </div>-->
                 </div>
-                <div class="flex gap-2 mt-2">
+                <div class="flex flex-wrap gap-2 mt-2">
                     <button
                         v-for="cue in currentVideo.cues"
-                        class="text-lg border border-black bg-transparent px-2 py-1 min-w-9 hover:bg-neutral-200 active:bg-neutral-300 transition-all"
+                        class="text-lg border border-black px-2 py-1 min-w-9 hover:bg-neutral-300 active:bg-neutral-400 transition-all"
+                        :class="{ 'border-2': cue == currentCue }"
                         @click="currentCue = cue"
                     >
                         {{ cue.measure }}
@@ -152,18 +164,20 @@ function togglePlayPause() {
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto mt-4">
-                <div v-for="video in videos" class="my-2 flex gap-2 items-center">
+            <div class="flex-1 overflow-y-auto mt-2">
+                <div
+                    v-for="video in videos"
+                    class="my-2 flex gap-2 items-center rounded-lg px-2 py-1"
+                    :class="{ 'bg-neutral-200': video == currentVideo }"
+                >
                     <MusicalNoteIcon class="size-4" />
                     <a href="#" class="underline" @click="currentVideo = video">{{ video.name }}</a>
                 </div>
             </div>
 
-            <footer class="w-full max-w-md mx-auto p-2 pb-4">
-                <div>Timestamp: {{ timestamp.toFixed(1) }} s</div>
-                <label for="range-slider" class="block text-sm font-medium"
-                    >Video sync: {{ latencyMs }} ms</label
-                >
+            <footer class="w-full max-w-md mx-auto p-2 pb-4 border-t">
+                <div v-if="DEBUG">Timestamp: {{ timestamp.toFixed(1) }} s</div>
+                <label for="range-slider" class="block text-sm font-medium">Video sync: {{ latencyMs }} ms</label>
                 <input
                     type="range"
                     id="range-slider"
@@ -171,11 +185,9 @@ function togglePlayPause() {
                     max="500"
                     step="10"
                     v-model="latencyMs"
-                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-120"
+                    class="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-120"
                 />
-                <div class="text-sm italic">
-                    Adjust this if the video doesn't start right on the downbeat.
-                </div>
+                <div class="text-sm italic">Adjust this if the video doesn't start right on the downbeat.</div>
             </footer>
         </div>
     </div>
