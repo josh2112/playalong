@@ -1,6 +1,11 @@
 <script setup lang="ts">
-import { ArrowUturnLeftIcon, MusicalNoteIcon, PauseIcon, PlayIcon } from "@heroicons/vue/24/outline";
-import { ref, watch, watchEffect } from "vue";
+import {
+    ArrowUturnLeftIcon,
+    MusicalNoteIcon,
+    PauseIcon,
+    PlayIcon,
+} from "@heroicons/vue/24/outline";
+import { ref, watch } from "vue";
 import "./style.css";
 import { playCountoff } from "./useCountoff.ts";
 import { useYouTubePlayer } from "./useYouTubePlayer.ts";
@@ -36,51 +41,50 @@ const currentCue = ref<Cue>();
 const tics = ref<Tic[]>();
 const ticIndex = ref(-1);
 
-const downbeatLeadMs = ref(100);
+const downbeatLeadMs = ref(Number(localStorage.getItem("playalong.downbeatLeadMs") ?? "100"));
 
 const isPlaying = ref(false);
 
-watchEffect(async () => {
-    if (player.ready.value) {
+// The browser will not play audio until the user has interacted with the page.
+const canPlayAudio = ref(false);
+window.addEventListener("pointerdown", () => (canPlayAudio.value = true), { once: true });
+
+watch(player.ready, async (isReady) => {
+    if (isReady) {
         videos.value = await (await fetch("playlist.json")).json();
         player.addListener((e) => (isPlaying.value = e.data == 1));
-
-        downbeatLeadMs.value = Number(localStorage.getItem("playalong.downbeatLeadMs"));
 
         const videoId = localStorage.getItem("playalong.videoId");
         const cueMeasure = localStorage.getItem("playalong.cueMeasure");
 
         if (videoId) {
-            currentVideo.value = videos.value?.find((v) => v.id == videoId);
-            if (cueMeasure) {
-                watch(
-                    currentCue,
-                    () => {
-                        currentCue.value = currentVideo.value!.cues.find((c) => c.measure == Number(cueMeasure));
-                    },
-                    { once: true },
-                );
-            }
+            await loadVideo(
+                videos.value!.find((v) => v.id == videoId)!,
+                cueMeasure ? Number(cueMeasure) : 0,
+            );
         }
     }
 });
 
 watch(downbeatLeadMs, (ms) => localStorage.setItem("playalong.downbeatLeadMs", ms.toString()));
 
-watch(currentVideo, async (video) => {
-    if (video) {
-        localStorage.setItem("playalong.videoId", video.id);
-        currentCue.value = currentVideo.value?.cues[0];
+async function loadVideo(video: Video, measure: number | undefined = undefined) {
+    localStorage.setItem("playalong.videoId", video.id);
 
-        player.mute();
+    player.mute();
 
-        const loaded = player.waitForVideoLoaded();
-        player.loadVideo(video.id, 0);
-        await loaded;
+    const loaded = player.waitForVideoLoaded();
+    player.loadVideo(video.id, 0);
+    await loaded;
 
-        player.pause();
-    }
-});
+    player.pause();
+
+    currentVideo.value = video;
+
+    if (measure === undefined) measure = 1;
+    currentCue.value =
+        measure !== undefined ? video.cues.find((c) => c.measure == measure) : video.cues[0];
+}
 
 watch(currentCue, (cue) => {
     if (cue) {
@@ -122,21 +126,34 @@ function playCue(cue: Cue) {
 
     ticIndex.value = -1;
 
-    playCountoff(
-        cue.countoff,
-        cue.bpm,
-        () => (ticIndex.value += 1),
-        () => {
-            ticIndex.value += 1;
-            player.play();
-        },
-        downbeatLeadMs.value,
-    );
+    if (canPlayAudio.value) {
+        playCountoff(
+            cue.countoff,
+            cue.bpm,
+            () => (ticIndex.value += 1),
+            () => {
+                ticIndex.value += 1;
+                player.play();
+            },
+            downbeatLeadMs.value,
+        );
+    }
 }
 
 function togglePlayPause() {
     if (isPlaying.value) player.pause();
-    else player.play();
+    else {
+        // If the video is close enough to the cue start position, do the full countoff. Otherwise just
+        // resume.
+        if (currentCue.value) {
+            const pos = player.getPosition();
+            if (Math.abs(pos - currentCue.value.seek) < 1) {
+                playCue(currentCue.value);
+            } else {
+                player.play();
+            }
+        }
+    }
 }
 </script>
 
@@ -149,7 +166,10 @@ function togglePlayPause() {
 
             <div v-if="currentVideo" class="shrink-0 bg-neutral-200 rounded-lg p-4">
                 <div class="font-semibold mb-3">{{ currentVideo.name }}</div>
-                <div v-if="currentCue" class="mb-3 py-3 flex flex-col gap-4 border-y border-neutral-400">
+                <div
+                    v-if="currentCue"
+                    class="mb-3 py-3 flex flex-col gap-4 border-y border-neutral-400"
+                >
                     <div class="flex gap-4 flex-wrap items-center justify-center">
                         <button
                             class="rounded-full bg-neutral-300 px-4 py-2 hover:bg-neutral-400 active:bg-neutral-400 transition-all"
@@ -168,7 +188,9 @@ function togglePlayPause() {
                             <PauseIcon v-else class="size-8" />
                         </button>
 
-                        <div class="flex items-baseline justify-center text-lg font-semibold text-neutral-700">
+                        <div
+                            class="flex items-baseline justify-center text-lg font-semibold text-neutral-700"
+                        >
                             <div
                                 v-for="(tic, i) in tics"
                                 :key="i"
@@ -202,11 +224,13 @@ function togglePlayPause() {
                     :class="{ 'bg-neutral-200': video == currentVideo }"
                 >
                     <MusicalNoteIcon class="size-4" />
-                    <a href="#" class="underline" @click="currentVideo = video">{{ video.name }}</a>
+                    <a href="#" class="underline" @click="loadVideo(video)">{{ video.name }}</a>
                 </div>
             </div>
 
-            <footer class="w-full max-w-md mx-auto shrink-0 p-2 border-t pb-[env(safe-area-inset-bottom)]">
+            <footer
+                class="w-full max-w-md mx-auto shrink-0 p-2 border-t pb-[env(safe-area-inset-bottom)]"
+            >
                 <div v-if="DEBUG">Timestamp: {{ timestamp.toFixed(1) }} s</div>
                 <label for="range-slider" class="block text-sm font-medium"
                     >Video sync: {{ downbeatLeadMs }} ms
