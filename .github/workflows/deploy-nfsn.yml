@@ -1,0 +1,46 @@
+name: Build & Deploy to josh2112.com/playalong
+
+on:
+    # Build when I push to main
+    push:
+        branches: [main]
+    # Build manually (via Actions button)
+    workflow_dispatch:
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        environment: "josh2112.com (NFSN)"
+        env:
+            DEST_PATH: "/home/public/playalong"
+        steps:
+            - name: Clone repo
+              uses: actions/checkout@v7.0.0
+
+            - name: Setup node.js
+              uses: actions/setup-node@v6.5.0
+              with:
+                  node-version: "24"
+
+            - name: Build frontend
+              working-directory: ui
+              run: |
+                  npm ci
+                  npm run build
+
+            - name: Configure ssh/rsync
+              run: |
+                  mkdir -p ~/.ssh
+                  printf '%s\n' "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
+                  chmod 600 ~/.ssh/id_rsa
+                  ssh-keyscan -H ${{ vars.HOST }} >> ~/.ssh/known_hosts
+                  chmod 644 ~/.ssh/known_hosts
+                  printf 'Host %s\n  HostName %s\n  User %s\n  IdentityFile ~/.ssh/id_rsa\n  IdentitiesOnly yes\n  StrictHostKeyChecking yes\n' \
+                    "${{ vars.HOST }}" "${{ vars.HOST }}" "${{ secrets.USERNAME }}" > ~/.ssh/config
+                  chmod 600 ~/.ssh/config
+
+            - name: Deploy
+              run: |
+                  rsync -avzR --delete \
+                  dist/ \
+                  ${{ vars.HOST }}:$DEST_PATH
