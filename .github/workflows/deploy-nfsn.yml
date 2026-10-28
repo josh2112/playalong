@@ -12,7 +12,7 @@ jobs:
         runs-on: ubuntu-latest
         environment: "josh2112.com (NFSN)"
         env:
-            DEST_PATH: "/home/public/playalong"
+            DEST_PATH: "/home/public/playalong/"
         steps:
             - name: Clone repo
               uses: actions/checkout@v7.0.0
