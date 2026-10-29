@@ -1,9 +1,18 @@
 <script setup lang="ts">
-import { ArrowUturnLeftIcon, MusicalNoteIcon, PauseIcon, PlayIcon } from "@heroicons/vue/24/outline";
+import {
+    ArrowLeftIcon,
+    Cog6ToothIcon,
+    EllipsisHorizontalIcon,
+    MusicalNoteIcon,
+    PauseIcon,
+    PlayIcon,
+} from "@heroicons/vue/24/solid";
 import { useWakeLock } from "@vueuse/core";
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, useTemplateRef, watch } from "vue";
+import SettingsDialog from "./SettingsDialog.vue";
 import "./style.css";
 import { playCountoff } from "./useCountoff.ts";
+import { useSettings } from "./useSettings.ts";
 import { useYouTubePlayer } from "./useYouTubePlayer.ts";
 
 const DEBUG = false;
@@ -27,9 +36,9 @@ interface Tic {
     isAccent: boolean;
 }
 
-type pages = "songList" | "song";
+const { downbeatLeadMs, videoId, cueMeasure } = useSettings();
 
-const page = ref<pages>("songList");
+const syncDialog = useTemplateRef("syncDialog");
 
 const { request: requestWakeLock } = useWakeLock();
 
@@ -42,8 +51,6 @@ const currentCue = ref<Cue>();
 
 const tics = ref<Tic[]>();
 const ticIndex = ref(-1);
-
-const downbeatLeadMs = ref(Number(localStorage.getItem("playalong.downbeatLeadMs") ?? "100"));
 
 const isPlaying = ref(false);
 
@@ -60,19 +67,17 @@ watch(player.ready, async (isReady) => {
     if (isReady) {
         player.addListener((e) => (isPlaying.value = e.data == 1));
 
-        const videoId = localStorage.getItem("playalong.videoId");
-        const cueMeasure = localStorage.getItem("playalong.cueMeasure");
-
-        if (videoId) {
-            await loadVideo(videos.value!.find((v) => v.id == videoId)!, cueMeasure ? Number(cueMeasure) : 0);
+        if (videoId.value) {
+            await loadVideo(
+                videos.value!.find((v) => v.id == videoId.value)!,
+                cueMeasure.value ? Number(cueMeasure.value) : 0,
+            );
         }
     }
 });
 
-watch(downbeatLeadMs, (ms) => localStorage.setItem("playalong.downbeatLeadMs", ms.toString()));
-
 async function loadVideo(video: Video, measure: number | undefined = undefined) {
-    localStorage.setItem("playalong.videoId", video.id);
+    videoId.value = video.id;
 
     player.mute();
 
@@ -85,12 +90,17 @@ async function loadVideo(video: Video, measure: number | undefined = undefined) 
     currentVideo.value = video;
 
     if (measure === undefined) measure = 1;
-    currentCue.value = measure !== undefined ? video.cues.find((c) => c.measure == measure) : video.cues[0];
+    currentCue.value =
+        measure !== undefined ? video.cues.find((c) => c.measure == measure) : video.cues[0];
+}
+
+function back() {
+    currentVideo.value = undefined;
 }
 
 watch(currentCue, (cue) => {
     if (cue) {
-        localStorage.setItem("playalong.cueMeasure", cue.measure.toString());
+        cueMeasure.value = cue.measure;
 
         let newTics: Tic[] = [];
         let beat = 1;
@@ -160,104 +170,139 @@ function togglePlayPause() {
 </script>
 
 <template>
-    <div
-        class="antialiased container mx-auto px-4 sm:px-6 lg:px-8 touch-manipulation flex flex-col h-dvh overflow-hidden"
-    >
-        <div v-if="page == 'songList'" class="flex-1 min-h-0 overflow-y-auto mt-2">
-            <div
-                v-for="video in videos"
-                class="my-2 flex gap-2 items-center rounded-lg px-2 py-1"
-                :class="{ 'bg-neutral-200': video == currentVideo }"
+    <div class="bg-emerald-300">
+        <div
+            class="antialiased container mx-auto px-4 sm:px-6 lg:px-8 touch-manipulation flex flex-col h-dvh overflow-hidden"
+        >
+            <header
+                class="w-full h-12 mx-auto shrink-0 pt-[env(safe-area-inset-top)] flex items-center"
             >
-                <MusicalNoteIcon class="size-4" />
-                <a href="#" class="underline" @click="loadVideo(video)">{{ video.name }}</a>
+                <button
+                    v-if="currentVideo"
+                    class="rounded-full p-2 hover:bg-emerald-200 active:bg-emerald-400"
+                    @click="back()"
+                >
+                    <ArrowLeftIcon class="size-6" />
+                </button>
+                <div class="grow text-lg font-semibold ps-2">
+                    {{ currentVideo?.name ?? "PCB Holiday Concert 2026" }}
+                </div>
+                <button
+                    v-if="currentVideo"
+                    class="rounded-full p-2 hover:bg-emerald-200 active:bg-emerald-400"
+                    @click="syncDialog?.showModal()"
+                >
+                    <Cog6ToothIcon class="size-6" />
+                </button>
+            </header>
+
+            <div
+                v-if="!currentVideo"
+                class="flex-1 min-h-0 overflow-y-auto rounded-2xl shadow-xl bg-emerald-50"
+            >
+                <div
+                    v-for="video in videos"
+                    class="px-2 py-3 flex gap-2 items-center border-b border-emerald-200"
+                    :class="{ 'bg-emerald-100': video == currentVideo }"
+                    @click="loadVideo(video)"
+                >
+                    <MusicalNoteIcon class="size-4 text-emerald-700" />
+                    <div>{{ video.name }}</div>
+                </div>
             </div>
-        </div>
 
-        <div v-if="page == 'song'" class="">
-            <div v-if="currentVideo" class="shrink-0 bg-neutral-200 rounded-lg p-4">
-                <div class="font-semibold mb-3">{{ currentVideo.name }}</div>
-                <div v-if="currentCue" class="mb-3 py-3 flex flex-col gap-4 border-y border-neutral-400">
-                    <div class="flex gap-3 flex-wrap items-center justify-center">
-                        <div class="mt-1 border-2 px-4 py-1 text-lg font-semibold">
-                            {{ currentCue.measure }}
-                        </div>
-                        <button
-                            class="rounded-lg bg-neutral-300 px-4 py-2 hover:bg-neutral-400 active:bg-neutral-400 transition-all"
-                            @click="playCue(currentCue)"
-                        >
+            <div v-if="currentVideo" class="flex-1 min-h-0 overflow-y-auto">
+                <div class="shrink-0">
+                    <div
+                        v-if="currentCue"
+                        class="bg-emerald-50 rounded-2xl p-4 pb-1 flex flex-col gap-4"
+                    >
+                        <div class="flex gap-3 flex-wrap items-center justify-center">
                             <div class="flex flex-col items-center">
-                                <ArrowUturnLeftIcon class="size-8" />
-                                <div class="text-sm font-semibold">Start with count-off</div>
-                            </div>
-                        </button>
-                        <button
-                            class="rounded-lg bg-neutral-300 px-4 py-2 hover:bg-neutral-400 active:bg-neutral-400 transition-all"
-                            @click="togglePlayPause()"
-                        >
-                            <div class="flex flex-col items-center">
-                                <PlayIcon v-if="!isPlaying" class="size-8" />
-                                <PauseIcon v-else class="size-8" />
-                                <div class="text-sm font-semibold">
-                                    {{ isPlaying ? "Pause" : "Play" }}
+                                <div class="mt-1 border-2 px-3 py-1 mb-1 text-lg font-semibold">
+                                    {{ currentCue.measure }}
                                 </div>
+                                <div class="text-sm font-semibold">Measure</div>
                             </div>
-                        </button>
-
-                        <div class="flex items-baseline justify-center text-lg font-semibold text-neutral-700">
-                            <div
-                                v-for="(tic, i) in tics"
-                                :key="i"
-                                :class="{
-                                    'text-2xl': tic.isAccent,
-                                    'bg-emerald-400': i == ticIndex,
-                                }"
-                                class="px-3 py-2 rounded-full"
+                            <button
+                                class="rounded-lg bg-emerald-300 px-4 py-2 hover:bg-emerald-400 active:bg-emerald-400 transition-all"
+                                @click="playCue(currentCue)"
                             >
-                                {{ tic.beat }}
+                                <div class="flex flex-col items-center">
+                                    <div class="flex">
+                                        <!--<ArrowUturnLeftIcon class="size-8" />-->
+                                        <EllipsisHorizontalIcon class="size-8" />
+                                        <PlayIcon class="size-8 -ms-1" />
+                                    </div>
+                                    <div class="text-sm font-semibold">Start with count-off</div>
+                                </div>
+                            </button>
+                            <button
+                                class="rounded-lg bg-emerald-300 px-4 py-2 hover:bg-emerald-400 active:bg-emerald-400 transition-all"
+                                @click="togglePlayPause()"
+                            >
+                                <div class="flex flex-col items-center">
+                                    <PlayIcon v-if="!isPlaying" class="size-8" />
+                                    <PauseIcon v-else class="size-8" />
+                                    <div class="text-sm font-semibold">
+                                        {{ isPlaying ? "Pause" : "Play" }}
+                                    </div>
+                                </div>
+                            </button>
+
+                            <div class="flex items-baseline justify-center text-lg font-semibold">
+                                <div
+                                    v-for="(tic, i) in tics"
+                                    :key="i"
+                                    :class="{
+                                        'text-2xl': tic.isAccent,
+                                        'bg-emerald-300': i == ticIndex,
+                                        'border-s border-black': tic.beat == 1,
+                                    }"
+                                    class="px-2.5 my-1 py-1"
+                                >
+                                    {{ tic.beat }}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="flex flex-wrap gap-2 mt-2">
-                    <button
-                        v-for="cue in currentVideo.cues"
-                        class="text-lg border border-black px-2 py-1 min-w-9 hover:bg-neutral-300 active:bg-neutral-400 transition-all"
-                        :class="{ 'border-2': cue == currentCue }"
-                        @click="currentCue = cue"
+                    <div
+                        class="mt-4 bg-emerald-50 rounded-2xl p-4 flex flex-wrap gap-2 border-emerald-200"
                     >
-                        {{ cue.measure }}
+                        <button
+                            v-for="cue in currentVideo.cues"
+                            class="text-lg border border-black px-2 py-1 min-w-9 hover:bg-neutral-300 active:bg-neutral-400 transition-all"
+                            :class="{ 'border-2': cue == currentCue }"
+                            @click="currentCue = cue"
+                        >
+                            {{ cue.measure }}
+                        </button>
+                    </div>
+                </div>
+
+                <footer class="w-full mx-auto shrink-0 p-2 pb-[env(safe-area-inset-bottom)]">
+                    <div v-if="DEBUG">Timestamp: {{ timestamp.toFixed(1) }} s</div>
+
+                    <!-- the trigger: a labeled button, not an icon -->
+                    <button class="underline" @click="syncDialog?.showModal()">
+                        Video out of sync?
                     </button>
+                </footer>
+            </div>
+
+            <footer class="w-full max-w-md mx-auto shrink-0 p-2 pb-[env(safe-area-inset-bottom)]">
+                <div class="w-full max-w-3xl mx-auto shrink-0">
+                    <div
+                        id="yt-player"
+                        class="w-full max-w-100 h-30 mx-auto rounded-xl shadow-lg"
+                    />
                 </div>
-            </div>
-
-            <div class="w-full max-w-3xl mx-auto shrink-0 py-4">
-                <div id="yt-player" class="w-full max-w-100 h-30 mx-auto rounded-xl shadow-lg" />
-            </div>
-
-            <footer class="w-full max-w-md mx-auto shrink-0 p-2 border-t pb-[env(safe-area-inset-bottom)]">
-                <div v-if="DEBUG">Timestamp: {{ timestamp.toFixed(1) }} s</div>
-                <label for="range-slider" class="block text-sm font-medium"
-                    >Video sync: {{ downbeatLeadMs }} ms
-                    <span class="text-sm italic font-normal ms-1"
-                        >Adjust this if the video doesn't start right on the downbeat.</span
-                    >
-                    <input
-                        type="range"
-                        id="range-slider"
-                        min="0"
-                        max="500"
-                        step="10"
-                        v-model="downbeatLeadMs"
-                        class="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-120"
-                /></label>
+                <div class="text-sm italic text-center mt-1 py-1">
+                    @ Josh2112 Apps. Built {{ BUILD_TIMESTAMP }}
+                </div>
             </footer>
         </div>
 
-        <footer class="w-full max-w-md mx-auto shrink-0 p-2 pb-[env(safe-area-inset-bottom)]">
-            <div class="text-sm italic text-center border-t border-neutral-300 mt-1 py-1">
-                @ Josh2112 Apps. Built {{ BUILD_TIMESTAMP }}
-            </div>
-        </footer>
+        <SettingsDialog ref="syncDialog" />
     </div>
 </template>
