@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-    ArrowUturnLeftIcon,
-    MusicalNoteIcon,
-    PauseIcon,
-    PlayIcon,
-} from "@heroicons/vue/24/outline";
+import { ArrowUturnLeftIcon, MusicalNoteIcon, PauseIcon, PlayIcon } from "@heroicons/vue/24/outline";
 import { useWakeLock } from "@vueuse/core";
 import { onMounted, ref, watch } from "vue";
 import "./style.css";
@@ -14,6 +9,12 @@ import { useYouTubePlayer } from "./useYouTubePlayer.ts";
 const DEBUG = false;
 const BUILD_TIMESTAMP = new Date(__BUILD_TIME__).toLocaleString();
 
+interface Video {
+    name: string;
+    id: string;
+    cues: Cue[];
+}
+
 interface Cue {
     measure: number;
     bpm: number;
@@ -21,16 +22,14 @@ interface Cue {
     seek: number;
 }
 
-interface Video {
-    name: string;
-    id: string;
-    cues: Cue[];
-}
-
 interface Tic {
     beat: number;
     isAccent: boolean;
 }
+
+type pages = "songList" | "song";
+
+const page = ref<pages>("songList");
 
 const { request: requestWakeLock } = useWakeLock();
 
@@ -52,21 +51,20 @@ const isPlaying = ref(false);
 const canPlayAudio = ref(false);
 window.addEventListener("pointerdown", () => (canPlayAudio.value = true), { once: true });
 
-onMounted(() => requestWakeLock("screen"));
+onMounted(async () => {
+    videos.value = await (await fetch("playlist.json")).json();
+    requestWakeLock("screen");
+});
 
 watch(player.ready, async (isReady) => {
     if (isReady) {
-        videos.value = await (await fetch("playlist.json")).json();
         player.addListener((e) => (isPlaying.value = e.data == 1));
 
         const videoId = localStorage.getItem("playalong.videoId");
         const cueMeasure = localStorage.getItem("playalong.cueMeasure");
 
         if (videoId) {
-            await loadVideo(
-                videos.value!.find((v) => v.id == videoId)!,
-                cueMeasure ? Number(cueMeasure) : 0,
-            );
+            await loadVideo(videos.value!.find((v) => v.id == videoId)!, cueMeasure ? Number(cueMeasure) : 0);
         }
     }
 });
@@ -87,8 +85,7 @@ async function loadVideo(video: Video, measure: number | undefined = undefined) 
     currentVideo.value = video;
 
     if (measure === undefined) measure = 1;
-    currentCue.value =
-        measure !== undefined ? video.cues.find((c) => c.measure == measure) : video.cues[0];
+    currentCue.value = measure !== undefined ? video.cues.find((c) => c.measure == measure) : video.cues[0];
 }
 
 watch(currentCue, (cue) => {
@@ -163,18 +160,24 @@ function togglePlayPause() {
 </script>
 
 <template>
-    <div class="antialiased container mx-auto px-4 sm:px-6 lg:px-8 touch-manipulation">
-        <div class="flex flex-col h-dvh overflow-hidden">
-            <div class="w-full max-w-3xl mx-auto shrink-0 py-4">
-                <div id="yt-player" class="w-full max-w-100 h-30 mx-auto rounded-xl shadow-lg" />
+    <div
+        class="antialiased container mx-auto px-4 sm:px-6 lg:px-8 touch-manipulation flex flex-col h-dvh overflow-hidden"
+    >
+        <div v-if="page == 'songList'" class="flex-1 min-h-0 overflow-y-auto mt-2">
+            <div
+                v-for="video in videos"
+                class="my-2 flex gap-2 items-center rounded-lg px-2 py-1"
+                :class="{ 'bg-neutral-200': video == currentVideo }"
+            >
+                <MusicalNoteIcon class="size-4" />
+                <a href="#" class="underline" @click="loadVideo(video)">{{ video.name }}</a>
             </div>
+        </div>
 
+        <div v-if="page == 'song'" class="">
             <div v-if="currentVideo" class="shrink-0 bg-neutral-200 rounded-lg p-4">
                 <div class="font-semibold mb-3">{{ currentVideo.name }}</div>
-                <div
-                    v-if="currentCue"
-                    class="mb-3 py-3 flex flex-col gap-4 border-y border-neutral-400"
-                >
+                <div v-if="currentCue" class="mb-3 py-3 flex flex-col gap-4 border-y border-neutral-400">
                     <div class="flex gap-3 flex-wrap items-center justify-center">
                         <div class="mt-1 border-2 px-4 py-1 text-lg font-semibold">
                             {{ currentCue.measure }}
@@ -201,9 +204,7 @@ function togglePlayPause() {
                             </div>
                         </button>
 
-                        <div
-                            class="flex items-baseline justify-center text-lg font-semibold text-neutral-700"
-                        >
+                        <div class="flex items-baseline justify-center text-lg font-semibold text-neutral-700">
                             <div
                                 v-for="(tic, i) in tics"
                                 :key="i"
@@ -230,20 +231,11 @@ function togglePlayPause() {
                 </div>
             </div>
 
-            <div class="flex-1 min-h-0 overflow-y-auto mt-2">
-                <div
-                    v-for="video in videos"
-                    class="my-2 flex gap-2 items-center rounded-lg px-2 py-1"
-                    :class="{ 'bg-neutral-200': video == currentVideo }"
-                >
-                    <MusicalNoteIcon class="size-4" />
-                    <a href="#" class="underline" @click="loadVideo(video)">{{ video.name }}</a>
-                </div>
+            <div class="w-full max-w-3xl mx-auto shrink-0 py-4">
+                <div id="yt-player" class="w-full max-w-100 h-30 mx-auto rounded-xl shadow-lg" />
             </div>
 
-            <footer
-                class="w-full max-w-md mx-auto shrink-0 p-2 border-t pb-[env(safe-area-inset-bottom)]"
-            >
+            <footer class="w-full max-w-md mx-auto shrink-0 p-2 border-t pb-[env(safe-area-inset-bottom)]">
                 <div v-if="DEBUG">Timestamp: {{ timestamp.toFixed(1) }} s</div>
                 <label for="range-slider" class="block text-sm font-medium"
                     >Video sync: {{ downbeatLeadMs }} ms
@@ -259,11 +251,13 @@ function togglePlayPause() {
                         v-model="downbeatLeadMs"
                         class="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-black [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:transition-all [&::-webkit-slider-thumb]:hover:scale-120"
                 /></label>
-
-                <div class="text-sm italic text-right border-t border-neutral-300 mt-1 py-1">
-                    @ Josh2112 Apps. Built {{ BUILD_TIMESTAMP }}
-                </div>
             </footer>
         </div>
+
+        <footer class="w-full max-w-md mx-auto shrink-0 p-2 pb-[env(safe-area-inset-bottom)]">
+            <div class="text-sm italic text-center border-t border-neutral-300 mt-1 py-1">
+                @ Josh2112 Apps. Built {{ BUILD_TIMESTAMP }}
+            </div>
+        </footer>
     </div>
 </template>
