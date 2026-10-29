@@ -90,8 +90,7 @@ async function loadVideo(video: Video, measure: number | undefined = undefined) 
     currentVideo.value = video;
 
     if (measure === undefined) measure = 1;
-    currentCue.value =
-        measure !== undefined ? video.cues.find((c) => c.measure == measure) : video.cues[0];
+    currentCue.value = measure !== undefined ? video.cues.find((c) => c.measure == measure) : video.cues[0];
 }
 
 function back() {
@@ -174,9 +173,7 @@ function togglePlayPause() {
         <div
             class="antialiased container mx-auto px-4 sm:px-6 lg:px-8 touch-manipulation flex flex-col h-dvh overflow-hidden"
         >
-            <header
-                class="w-full h-12 mx-auto shrink-0 pt-[env(safe-area-inset-top)] flex items-center"
-            >
+            <header class="w-full h-12 mx-auto shrink-0 pt-[env(safe-area-inset-top)] flex items-center">
                 <button
                     v-if="currentVideo"
                     class="rounded-full p-2 hover:bg-emerald-200 active:bg-emerald-400"
@@ -196,10 +193,7 @@ function togglePlayPause() {
                 </button>
             </header>
 
-            <div
-                v-if="!currentVideo"
-                class="flex-1 min-h-0 overflow-y-auto rounded-2xl shadow-xl bg-emerald-50"
-            >
+            <div v-if="!currentVideo" class="flex-1 min-h-0 overflow-y-auto rounded-2xl shadow-xl bg-emerald-50">
                 <div
                     v-for="video in videos"
                     class="px-2 py-3 flex gap-2 items-center border-b border-emerald-200"
@@ -213,10 +207,7 @@ function togglePlayPause() {
 
             <div v-if="currentVideo" class="flex-1 min-h-0 overflow-y-auto">
                 <div class="shrink-0">
-                    <div
-                        v-if="currentCue"
-                        class="bg-emerald-50 rounded-2xl p-4 pb-1 flex flex-col gap-4"
-                    >
+                    <div v-if="currentCue" class="bg-emerald-50 rounded-2xl p-4 flex flex-col gap-y-4 gap-4">
                         <div class="flex gap-3 flex-wrap items-center justify-center">
                             <div class="flex flex-col items-center">
                                 <div class="mt-1 border-2 px-3 py-1 mb-1 text-lg font-semibold">
@@ -250,7 +241,7 @@ function togglePlayPause() {
                                 </div>
                             </button>
 
-                            <div class="flex items-baseline justify-center text-lg font-semibold">
+                            <div class="flex items-baseline justify-center text-lg font-semibold -mb-2">
                                 <div
                                     v-for="(tic, i) in tics"
                                     :key="i"
@@ -266,9 +257,7 @@ function togglePlayPause() {
                             </div>
                         </div>
                     </div>
-                    <div
-                        class="mt-4 bg-emerald-50 rounded-2xl p-4 flex flex-wrap gap-2 border-emerald-200"
-                    >
+                    <div class="mt-4 bg-emerald-50 rounded-2xl p-4 flex flex-wrap gap-2 border-emerald-200">
                         <button
                             v-for="cue in currentVideo.cues"
                             class="text-lg border border-black px-2 py-1 min-w-9 hover:bg-neutral-300 active:bg-neutral-400 transition-all"
@@ -284,22 +273,15 @@ function togglePlayPause() {
                     <div v-if="DEBUG">Timestamp: {{ timestamp.toFixed(1) }} s</div>
 
                     <!-- the trigger: a labeled button, not an icon -->
-                    <button class="underline" @click="syncDialog?.showModal()">
-                        Video out of sync?
-                    </button>
+                    <button class="underline" @click="syncDialog?.showModal()">Video out of sync?</button>
                 </footer>
             </div>
 
             <footer class="w-full max-w-md mx-auto shrink-0 p-2 pb-[env(safe-area-inset-bottom)]">
                 <div class="w-full max-w-3xl mx-auto shrink-0">
-                    <div
-                        id="yt-player"
-                        class="w-full max-w-100 h-30 mx-auto rounded-xl shadow-lg"
-                    />
+                    <div id="yt-player" class="w-full max-w-100 h-30 mx-auto rounded-xl shadow-lg" />
                 </div>
-                <div class="text-sm italic text-center mt-1 py-1">
-                    @ Josh2112 Apps. Built {{ BUILD_TIMESTAMP }}
-                </div>
+                <div class="text-sm italic text-center mt-1 py-1">@ Josh2112 Apps. Built {{ BUILD_TIMESTAMP }}</div>
             </footer>
         </div>
 
