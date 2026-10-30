@@ -4,7 +4,6 @@ import {
     ArrowPathIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
-    EllipsisHorizontalIcon,
     PlayIcon,
     StopIcon,
 } from "@heroicons/vue/24/solid";
@@ -179,18 +178,18 @@ function stepCue(prev: boolean) {
                 <div class="flex gap-4">
                     <!-- Play/stop button -->
                     <button
-                        class="rounded-lg bg-emerald-300 px-4 py-2 hover:bg-emerald-400 active:bg-emerald-400 transition-all"
+                        class="rounded-lg bg-emerald-300 min-w-36 px-4 py-2 hover:bg-emerald-400 active:bg-emerald-400 transition-all"
                         @click="togglePlayPause()"
                     >
                         <div class="flex flex-col items-center">
-                            <div v-if="!player.isPlaying.value && !isCountoffPlaying" class="flex">
-                                <EllipsisHorizontalIcon class="size-8" />
-                                <PlayIcon class="size-8 -ms-1" />
-                            </div>
+                            <PlayIcon
+                                v-if="!player.isPlaying.value && !isCountoffPlaying"
+                                class="size-8 -ms-1"
+                            />
                             <StopIcon v-else class="size-8" />
                             <div class="text-sm font-semibold">
                                 <div v-if="!player.isPlaying.value && !isCountoffPlaying">
-                                    Restart with count-off
+                                    Start
                                 </div>
                                 <div v-else>Stop</div>
                             </div>
@@ -199,7 +198,7 @@ function stepCue(prev: boolean) {
 
                     <!-- Loop button-->
                     <button
-                        class="rounded-lg bg-emerald-300 px-4 py-2 hover:bg-emerald-400 active:bg-emerald-400 transition-all"
+                        class="rounded-lg bg-emerald-300 px-4 py-2 min-w-36 hover:bg-emerald-400 active:bg-emerald-400 transition-all"
                         :class="{ 'bg-emerald-800 text-white': isLoopOn }"
                         @click="isLoopOn = !isLoopOn"
                     >
@@ -252,6 +251,6 @@ function stepCue(prev: boolean) {
             </div>
         </div>
 
-        <button class="underline" @click="emit('showSettings')">Video out of sync?</button>
+        <button class="underline mt-2" @click="emit('showSettings')">Video out of sync?</button>
     </div>
 </template>
